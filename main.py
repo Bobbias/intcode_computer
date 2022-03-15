@@ -24,7 +24,9 @@ def run_day2_test():
 
 def run_day5_part1():
     """
+    Solve Advent of Code 2019 day 5 part 1.
 
+    Runs
     """
     output: int = 0
     # program = [3, 225, 1, 225, 6, 6, 1100, 1, 238, 225, 104, 0, 1102, 88, 66, 225, 101, 8, 125, 224, 101, -88, 224, 224,
@@ -103,7 +105,7 @@ def run_day5_part1():
     computer = IntcodeComputer(program, 1)
     setup_logger('Computer 1', 'comp1.log', level=logging.DEBUG)
     data = deque()
-    data.append(5)
+    data.append(1)
     while not computer.halted:
         computer.run(data)
         if not computer.halted:
