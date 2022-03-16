@@ -1,3 +1,6 @@
 /.idea/
 /lvenv/
 /venv/
+/docs/_templates/
+/docs/_static/
+/docs/_build/
