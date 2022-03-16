@@ -36,8 +36,10 @@ class IntcodeComputer:
 
     def get_params(self):
         """
+        Decode an Opcode, it's parameter modes, and fetch the appropriate parameter values.
 
-        :return:
+        :return: the opcode parameters, and the destination.
+        :rtype: tuple containing list(int) and int.
         """
         opcode: int = self.program[self.pc]
         self.logger.info(f'Opcode is: {opcode}')
@@ -78,8 +80,9 @@ class IntcodeComputer:
         Takes a queue for input and output functionality, loops through the computer's program until it hits an
         instruction which the computer must stop at temporarily. Must be called continually until computer.halted is
         True.
+
         :param input_queue: The queue to use for communication.
-        :return: none
+        :return: None
         """
         if not self.started:
             self.started = True
@@ -111,9 +114,6 @@ class IntcodeComputer:
         except (IndexError, ValueError) as err:
             process_intcode_exception(self.logger, self.pc, self.program, err)
 
-    def _hlt(self, **kwargs):
-        self.halted = True
-        # process_intcode_exception(self.logger, self.pc, self.program, RuntimeError("test"))
 
     ##############################################
     #  Internal functions
@@ -125,6 +125,23 @@ class IntcodeComputer:
     # runs the function at the correct time
     # must take into account the fact that output breaks late, others break early
     def _conditional_dispatch(self, opcode: OpcodeEnum, fun, *args, **kwargs):
+        """
+        Determine whether to break before or after running the given opcode implementation function.
+
+        Some solutions for Advent of Code 2019 require multiple Intcode Computer instances to communicate. This function
+        allows the user to arbitrarily control which opcodes the Computer will break after running.
+
+        The primary use case is when running multiple Intcode Computer instances as coroutines which communicate through
+        a shared message queue, but also allows more flexibility. An example of an alternative use for this feature is
+        to set all opcodes to break, and single step the computer for debug purposes.
+
+        :param opcode: The current opcode.
+        :param fun: The opcode implementation function.
+        :param args: Arguments for the implementation function.
+        :param kwargs: Keyword arguments for the implementation function.
+        :return: True or None.
+        :rtype: Boolean or None.
+        """
         op = BreakOn[opcode.name]
         if op == BreakOn.OUTPUT and not self.is_break:
             self.is_break = True
@@ -143,25 +160,71 @@ class IntcodeComputer:
             self._log(opcode, fun, *args, **kwargs)
             return
 
+    def _hlt(self, **kwargs):
+        """
+        Halts execution of the current Intcode Computer.
+
+        :param kwargs:
+        :return: None
+        """
+        self.halted = True
+
     def _in(self, *, dest, io_queue, **kwargs):
+        """
+        Receive input from the IO Queue
+
+        :param dest: The destination to place the input.
+        :param io_queue: The IO Queue containing the input value.
+        :param kwargs:
+        :return: None
+        """
         input_value = io_queue.popleft()
         self.logger.debug(f'IN program[{dest}] = {self.program[dest]} value = {input_value}')
         self.program[dest] = input_value
 
     def _rb(self, *, params, **kwargs):
+        """
+        Add a value to the Relative Base register.
+
+        :param params: The value to add to the register.
+        :param kwargs:
+        :return: None
+        """
         self.relative_base += params[0]
         assert self.relative_base > 0
         self.logger.debug(f'RB relative base = {self.relative_base}')
 
     def _eq(self, *, dest, params, **kwargs):
+        """
+        Set destination to 1 if the input parameters are equal, 0 if not.
+
+        :param dest: The destination to set.
+        :param params: The parameters to compare.
+        :param kwargs:
+        :return: None
+        """
         self.program[dest] = 1 if params[0] == params[1] else 0
         self.logger.debug(f'EQ program[{dest}] = {self.program[dest]}')
 
     def _lt(self, *, dest, params, **kwargs):
+        """
+        Compares the parameters, set destination to 1 if the first parameter is less than the second, 0 if not.
+
+        :param dest: The destination to set.
+        :param params: The parameteres to compare.
+        :param kwargs:
+        :return: None
+        """
         self.program[dest] = 1 if params[0] < params[1] else 0
         self.logger.debug(f'LT program[{dest}] = {self.program[dest]}')
 
     def _jz(self, *, params, **kwargs):
+        """
+
+        :param params:
+        :param kwargs:
+        :return:
+        """
         if not params[0]:
             self.logger.debug(f'JZ PC = {params[1]}')
             self.pc = params[1]
@@ -170,6 +233,12 @@ class IntcodeComputer:
             self.pc += opcode_length[OpcodeEnum.JZ]
 
     def _jnz(self, *, params, **kwargs):
+        """
+
+        :param params:
+        :param kwargs:
+        :return:
+        """
         if params[0]:
             self.logger.debug(f'JNZ PC = {params[1]}')
             self.pc = params[1]
@@ -178,17 +247,42 @@ class IntcodeComputer:
             self.pc += opcode_length[OpcodeEnum.JNZ]
 
     def _out(self, *, io_queue, params, **kwargs):
+        """
+
+        :param io_queue:
+        :param params:
+        :param kwargs:
+        :return:
+        """
         io_queue.append(params[0])
 
     def _mul(self, *, dest, params, **kwargs):
+        """
+
+        :param dest:
+        :param params:
+        :param kwargs:
+        :return:
+        """
         self.program[dest] = params[0] * params[1]
         self.logger.info(f'MUL {params[0]} * {params[1]} = {self.program[dest]}')
 
     def _add(self, *, dest, params, **kwargs):
+        """
+
+        :param dest:
+        :param params:
+        :param kwargs:
+        :return:
+        """
         self.program[dest] = params[0] + params[1]
         self.logger.info(f'ADD {params[0]} + {params[1]} = {self.program[dest]}')
 
     def _get_func_dict(self):
+        """
+
+        :return:
+        """
         return {k: v for k, v in filter(is_relevant, self.__class__.__dict__.items())}
 
 
