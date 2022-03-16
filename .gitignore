@@ -1,6 +1,7 @@
 /.idea/
 /lvenv/
 /venv/
+/pypy-env/
 /docs/_templates/
 /docs/_static/
 /docs/_build/
