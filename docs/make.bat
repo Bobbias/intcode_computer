@@ -9,7 +9,7 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=.
 set BUILDDIR=_build
-
+set STATICDIR=_static
 if "%1" == "" goto help
 
 %SPHINXBUILD% >NUL 2>NUL
@@ -26,6 +26,7 @@ if errorlevel 9009 (
 )
 
 %SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
+copy /Y ./custom.css ./%STATICDIR%/custom.css
 goto end
 
 :help
