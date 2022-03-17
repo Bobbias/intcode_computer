@@ -16,6 +16,8 @@ if __name__ == '__main__':
 
 ## Building documentation
 
+Documentation is generated using [Sphinx](https://www.sphinx-doc.org/en/master/).
+
 Building the documentation is easy.
 
 ### Linux
