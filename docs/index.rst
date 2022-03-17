@@ -10,10 +10,11 @@ Welcome to Intcode Computer's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-.. automodule:: computer
-   :members:
-
-
+   building
+   computer
+   main
+   enums
+   helpers
 
 Indices and tables
 ==================
